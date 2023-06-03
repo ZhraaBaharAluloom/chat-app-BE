@@ -2,12 +2,14 @@
   "name": "chatapp-be",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dis/app.js",
   "scripts": {
     "start": "node dis/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc-watch --onSuccess \"node dis/app.js\"",
-    "deploy": "git add . && git commit -m Heroku && git push heroku master"
+    "deploy": "git add . && git commit -m Heroku && git push heroku master",
+    "dev": "tsc && node dis/app.js"
+
   },
   "keywords": [],
   "author": "",
