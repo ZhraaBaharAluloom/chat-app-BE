@@ -9,8 +9,8 @@ const chatController_1 = __importDefault(require("./controllers/chatController")
 const database_1 = __importDefault(require("./database"));
 const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
+const config_1 = __importDefault(require("./config"));
 const app = (0, express_1.default)();
-const port = process.env.PORT || 3000;
 app.use((0, cors_1.default)());
 app.use(body_parser_1.default.json()); // Add this line to parse JSON bodies
 app.use(body_parser_1.default.urlencoded({ extended: true }));
@@ -23,8 +23,8 @@ database_1.default
     .catch((error) => {
     console.log("🚀 ~ file: app.ts:14 ~ database.initialize ~ error:", error);
 });
-app.listen(port, () => {
-    console.log(`The server is running on http://localhost:${port}`);
+app.listen(config_1.default.server.port, () => {
+    return console.log(`[server]: Server is running on ${config_1.default.server.port}`);
 });
 (0, express_2.attachControllers)(app, [chatController_1.default]).then(() => {
     console.log("Controller attached");

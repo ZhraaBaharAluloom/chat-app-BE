@@ -8,8 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "tsc-watch --onSuccess \"node dis/app.js\"",
     "deploy": "git add . && git commit -m Heroku && git push heroku master",
-    "dev": "tsc && node dis/app.js"
-
+    "dev": "tsc && node dis/app.js",
+    "postinstall": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
     "@types/node-fetch": "^2.6.4",
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
+    "dotenv": "^16.1.3",
     "express": "^4.18.2",
     "pg": "^8.11.0",
     "reflect-metadata": "^0.1.13",
