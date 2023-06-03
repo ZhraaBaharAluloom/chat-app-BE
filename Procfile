@@ -1,1 +1,1 @@
-web: npm run watch
+web: node dist/app.js
