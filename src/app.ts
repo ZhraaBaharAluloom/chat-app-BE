@@ -5,10 +5,17 @@ import database from "./database";
 import cors from "cors";
 import bodyParser from "body-parser";
 import config from "./config";
+import UserController from "./controllers/userController";
+
+const { localStrategy, jwtStrategy } = require("./middleware/passport");
+const passport = require("passport");
 
 const app = express();
 
 app.use(cors());
+app.use(passport.initialize());
+passport.use(localStrategy);
+passport.use(jwtStrategy);
 app.use(bodyParser.json()); // Add this line to parse JSON bodies
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json()); // Middleware to parse JSON request body
@@ -26,6 +33,6 @@ app.listen(config.server.port, () => {
   return console.log(`[server]: Server is running on ${config.server.port}`);
 });
 
-attachControllers(app, [ChatController]).then(() => {
+attachControllers(app, [ChatController, UserController]).then(() => {
   console.log("Controller attached");
 });

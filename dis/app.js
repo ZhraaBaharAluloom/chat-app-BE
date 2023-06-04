@@ -10,8 +10,14 @@ const database_1 = __importDefault(require("./database"));
 const cors_1 = __importDefault(require("cors"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const config_1 = __importDefault(require("./config"));
+const userController_1 = __importDefault(require("./controllers/userController"));
+const { localStrategy, jwtStrategy } = require("./middleware/passport");
+const passport = require("passport");
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)());
+app.use(passport.initialize());
+passport.use(localStrategy);
+passport.use(jwtStrategy);
 app.use(body_parser_1.default.json()); // Add this line to parse JSON bodies
 app.use(body_parser_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.json()); // Middleware to parse JSON request body
@@ -26,6 +32,6 @@ database_1.default
 app.listen(config_1.default.server.port, () => {
     return console.log(`[server]: Server is running on ${config_1.default.server.port}`);
 });
-(0, express_2.attachControllers)(app, [chatController_1.default]).then(() => {
+(0, express_2.attachControllers)(app, [chatController_1.default, userController_1.default]).then(() => {
     console.log("Controller attached");
 });
