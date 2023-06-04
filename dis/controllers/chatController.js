@@ -27,6 +27,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("@decorators/express");
 const chat_1 = __importDefault(require("../entities/chat"));
 const typeorm_1 = require("typeorm");
+const passport_1 = __importDefault(require("passport"));
 let ChatController = class ChatController {
     getAllChats(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -55,14 +56,20 @@ let ChatController = class ChatController {
     createChat(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                let newChat = new chat_1.default();
-                newChat.send = req.body.send;
-                newChat.text = req.body.text;
-                const createdChat = yield chat_1.default.save(newChat);
-                res.json({ newChat: createdChat });
+                return passport_1.default.authenticate("jwt", { session: false }, (err, user) => __awaiter(this, void 0, void 0, function* () {
+                    if (err || !user) {
+                        return res.status(401).json({ message: "Authentication failed" });
+                    }
+                    let newChat = new chat_1.default();
+                    newChat.send = req.body.send;
+                    newChat.text = req.body.text;
+                    newChat.user = user.id;
+                    const createdChat = yield chat_1.default.save(newChat);
+                    return res.json({ newChat: createdChat });
+                }))(req, res);
             }
             catch (error) {
-                return res.status(422);
+                return res.status(500).json({ message: "Internal server error" });
             }
         });
     }

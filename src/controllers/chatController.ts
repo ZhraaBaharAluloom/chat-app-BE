@@ -10,6 +10,7 @@ import {
 import { Request, Response } from "express";
 import Chat from "../entities/chat";
 import { Equal } from "typeorm";
+import passport from "passport";
 
 @Controller("/chats")
 class ChatController {
@@ -37,13 +38,24 @@ class ChatController {
   @Post("/")
   async createChat(@Req() req: Request, @Res() res: Response) {
     try {
-      let newChat = new Chat();
-      newChat.send = req.body.send;
-      newChat.text = req.body.text;
-      const createdChat = await Chat.save(newChat);
-      res.json({ newChat: createdChat });
+      return passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err: any, user: any) => {
+          if (err || !user) {
+            return res.status(401).json({ message: "Authentication failed" });
+          }
+
+          let newChat = new Chat();
+          newChat.send = req.body.send;
+          newChat.text = req.body.text;
+          newChat.user = user.id;
+          const createdChat = await Chat.save(newChat);
+          return res.json({ newChat: createdChat });
+        }
+      )(req, res);
     } catch (error) {
-      return res.status(422);
+      return res.status(500).json({ message: "Internal server error" });
     }
   }
 
