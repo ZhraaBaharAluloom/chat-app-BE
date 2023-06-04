@@ -4,9 +4,11 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from "typeorm";
+import User from "./user";
 
 @Entity()
 class Chat extends BaseEntity {
@@ -24,6 +26,9 @@ class Chat extends BaseEntity {
 
   @UpdateDateColumn({ default: new Date() })
   updatedDate: Date;
+
+  @ManyToOne(() => User, (user) => user.chats)
+  user: User;
 
   formattedCreatedDate: String;
 

@@ -8,8 +8,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
+const user_1 = __importDefault(require("./user"));
 let Chat = class Chat extends typeorm_1.BaseEntity {
     setFormattedDate() {
         this.formattedCreatedDate = new Intl.DateTimeFormat("en-GB", {
@@ -39,6 +43,10 @@ __decorate([
     (0, typeorm_1.UpdateDateColumn)({ default: new Date() }),
     __metadata("design:type", Date)
 ], Chat.prototype, "updatedDate", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => user_1.default, (user) => user.chats),
+    __metadata("design:type", user_1.default)
+], Chat.prototype, "user", void 0);
 __decorate([
     (0, typeorm_1.AfterLoad)(),
     __metadata("design:type", Function),
