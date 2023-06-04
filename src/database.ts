@@ -1,5 +1,6 @@
 import { DataSource } from "typeorm";
 import Chat from "./entities/chat";
+import User from "./entities/user";
 
 const database = new DataSource({
   username: process.env.USERNAME,
@@ -8,7 +9,7 @@ const database = new DataSource({
   host: "localhost",
   type: "postgres",
   port: 5432,
-  entities: [Chat],
+  entities: [Chat, User],
   synchronize: true,
 });
 

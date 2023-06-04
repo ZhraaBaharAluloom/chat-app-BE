@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const typeorm_1 = require("typeorm");
 const chat_1 = __importDefault(require("./entities/chat"));
+const user_1 = __importDefault(require("./entities/user"));
 const database = new typeorm_1.DataSource({
     username: process.env.USERNAME,
     password: process.env.PASSWORD,
@@ -12,7 +13,7 @@ const database = new typeorm_1.DataSource({
     host: "localhost",
     type: "postgres",
     port: 5432,
-    entities: [chat_1.default],
+    entities: [chat_1.default, user_1.default],
     synchronize: true,
 });
 exports.default = database;
