@@ -29,11 +29,11 @@ __decorate([
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
 __decorate([
-    (0, typeorm_1.Column)(),
+    (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "profileImg", void 0);
 __decorate([
-    (0, typeorm_1.OneToMany)(() => chat_1.default, (chat) => chat.user, { cascade: true }),
+    (0, typeorm_1.OneToMany)(() => chat_1.default, (chat) => chat.user),
     __metadata("design:type", Array)
 ], User.prototype, "chats", void 0);
 __decorate([

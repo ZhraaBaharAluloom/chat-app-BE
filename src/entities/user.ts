@@ -22,10 +22,10 @@ class User extends BaseEntity {
   @Column()
   password: String;
 
-  @Column()
+  @Column({ nullable: true })
   profileImg: String;
 
-  @OneToMany(() => Chat, (chat) => chat.user, { cascade: true })
+  @OneToMany(() => Chat, (chat) => chat.user)
   chats: Chat[];
 
   @CreateDateColumn({ default: new Date() })
