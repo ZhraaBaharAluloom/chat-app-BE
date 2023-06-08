@@ -39,11 +39,11 @@ exports.jwtStrategy = new passport_jwt_1.default.Strategy({
     jwtFromRequest: fromAuthHeaderAsBearerToken(),
     secretOrKey: keys_1.keys.JWT_SECRET,
 }, (jwtPayload, done) => __awaiter(void 0, void 0, void 0, function* () {
-    if (Date.now() > jwtPayload.exp) {
-        return done(null, false);
+    if (jwtPayload) {
+        const user = yield user_1.default.findOneBy({ id: jwtPayload.id });
+        return done(null, user);
     }
     else {
-        const user = yield user_1.default.findOneBy(jwtPayload._id);
-        return done(null, user);
+        return done(null, false);
     }
 }));

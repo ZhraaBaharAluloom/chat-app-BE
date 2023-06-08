@@ -31,11 +31,11 @@ export const jwtStrategy = new JWTStrategy.Strategy(
     secretOrKey: keys.JWT_SECRET,
   },
   async (jwtPayload: any, done: any) => {
-    if (Date.now() > jwtPayload.exp) {
-      return done(null, false);
-    } else {
-      const user = await User.findOneBy(jwtPayload._id);
+    if (jwtPayload) {
+      const user = await User.findOneBy({ id: jwtPayload.id });
       return done(null, user);
+    } else {
+      return done(null, false);
     }
   }
 );
