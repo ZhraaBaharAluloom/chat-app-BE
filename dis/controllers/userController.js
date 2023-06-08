@@ -34,8 +34,9 @@ let UserController = class UserController {
     constructor() {
         this.generateToken = (user) => {
             const payload = {
-                _id: user._id,
+                id: user.id,
                 username: user.username,
+                profileImg: user.profileImg,
                 exp: Date.now() + keys_1.keys.JWT_EXP,
             };
             return jsonwebtoken_1.default.sign(payload, keys_1.keys.JWT_SECRET);
@@ -53,10 +54,12 @@ let UserController = class UserController {
                 newUser.profileImg = req.body.profileImg;
                 const createdUser = yield user_1.default.save(newUser);
                 const token = this.generateToken(createdUser);
-                res.json({ userToken: token });
+                res.json({ token });
             }
             catch (error) {
-                return res.status(422);
+                return res
+                    .status(422)
+                    .json({ message: `Internal server error ${error}` });
             }
         });
     }
@@ -72,33 +75,14 @@ let UserController = class UserController {
                 })(req, res);
             }
             catch (error) {
-                return res.status(500).json({ message: "Internal server error" });
+                return res
+                    .status(422)
+                    .json({ message: `Internal server error ${error}` });
             }
         });
     }
 };
 __decorate([
-    (0, express_1.Get)("/")
-    //   async getAllUsers(@Req() req: Request, @Res() res: Response) {
-    //     try {
-    //       const userList = await User.find();
-    //       return res.json({ Users: userList });
-    //     } catch (error) {
-    //       return res.status(500);
-    //     }
-    //   }
-    //   @Get("/:id")
-    //   async getUser(@Req() req: Request, @Res() res: Response) {
-    //     try {
-    //       const foundUser = await User.findOne({
-    //         where: { id: Equal(Number(req.params.id)) },
-    //       });
-    //       return res.json({ user: foundUser });
-    //     } catch (error) {
-    //       return res.status(500);
-    //     }
-    //   }
-    ,
     (0, express_1.Post)("/signup"),
     __param(0, (0, express_1.Req)()),
     __param(1, (0, express_1.Res)()),

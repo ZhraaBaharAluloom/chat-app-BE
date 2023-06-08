@@ -20,8 +20,9 @@ import { keys } from "../config/keys";
 class UserController {
   generateToken = (user: any) => {
     const payload = {
-      _id: user._id,
+      id: user.id,
       username: user.username,
+      profileImg: user.profileImg,
       exp: Date.now() + keys.JWT_EXP,
     };
 
@@ -30,26 +31,6 @@ class UserController {
 
   saltRounds = 10;
 
-  @Get("/")
-  //   async getAllUsers(@Req() req: Request, @Res() res: Response) {
-  //     try {
-  //       const userList = await User.find();
-  //       return res.json({ Users: userList });
-  //     } catch (error) {
-  //       return res.status(500);
-  //     }
-  //   }
-  //   @Get("/:id")
-  //   async getUser(@Req() req: Request, @Res() res: Response) {
-  //     try {
-  //       const foundUser = await User.findOne({
-  //         where: { id: Equal(Number(req.params.id)) },
-  //       });
-  //       return res.json({ user: foundUser });
-  //     } catch (error) {
-  //       return res.status(500);
-  //     }
-  //   }
   @Post("/signup")
   async signUp(@Req() req: Request, @Res() res: Response) {
     try {
@@ -57,19 +38,21 @@ class UserController {
         req.body.password,
         this.saltRounds
       );
+
       req.body.password = hashedPassword;
 
       let newUser = new User();
       newUser.username = req.body.username;
       newUser.password = req.body.password;
       newUser.profileImg = req.body.profileImg;
-
       const createdUser = await User.save(newUser);
       const token = this.generateToken(createdUser);
 
-      res.json({ userToken: token });
+      res.json({ token });
     } catch (error) {
-      return res.status(422);
+      return res
+        .status(422)
+        .json({ message: `Internal server error ${error}` });
     }
   }
 
@@ -90,7 +73,9 @@ class UserController {
         }
       )(req, res);
     } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
+      return res
+        .status(422)
+        .json({ message: `Internal server error ${error}` });
     }
   }
 }
