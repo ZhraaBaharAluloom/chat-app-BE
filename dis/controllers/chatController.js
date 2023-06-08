@@ -32,7 +32,10 @@ let ChatController = class ChatController {
     getAllChats(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const chatList = yield chat_1.default.find();
+                const chatList = yield chat_1.default.createQueryBuilder("chat")
+                    .leftJoinAndSelect("chat.user", "user")
+                    .select(["chat.id", "chat.text", "chat.send", "user.id"])
+                    .getMany();
                 return res.json({ Chats: chatList });
             }
             catch (error) {
@@ -60,10 +63,13 @@ let ChatController = class ChatController {
                     if (err || !user) {
                         return res.status(401).json({ message: "Authentication failed" });
                     }
+                    const userId = {
+                        id: user.id,
+                    };
                     let newChat = new chat_1.default();
                     newChat.send = req.body.send;
                     newChat.text = req.body.text;
-                    newChat.user = user.id;
+                    newChat.user = userId;
                     const createdChat = yield chat_1.default.save(newChat);
                     return res.json({ newChat: createdChat });
                 }))(req, res);
@@ -76,15 +82,30 @@ let ChatController = class ChatController {
     updateChat(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const foundChat = yield chat_1.default.findOne({
-                    where: { id: (0, typeorm_1.Equal)(Number(req.params.id)) },
-                });
-                if (!foundChat) {
-                    return res.status(404).json({ message: "Chat not found" });
-                }
-                Object.assign(foundChat, req.body);
-                const updatedChat = yield chat_1.default.save(foundChat);
-                res.json({ chat: updatedChat }).status(200);
+                return passport_1.default.authenticate("jwt", { session: false }, (err, user) => __awaiter(this, void 0, void 0, function* () {
+                    if (err || !user) {
+                        return res.status(401).json({ message: "Authentication failed" });
+                    }
+                    const foundChat = yield chat_1.default.findOne({
+                        where: { id: (0, typeorm_1.Equal)(Number(req.params.id)) },
+                        relations: ["user"],
+                    });
+                    if (!foundChat) {
+                        return res.status(404).json({ message: "Chat not found" });
+                    }
+                    if (user.id === (foundChat === null || foundChat === void 0 ? void 0 : foundChat.user.id)) {
+                        Object.assign(foundChat, req.body);
+                        const updatedChat = yield chat_1.default.save(foundChat);
+                        res.json({ chat: updatedChat }).status(200);
+                    }
+                    else {
+                        res
+                            .json({
+                            message: "Sorry, you don't have permission to update others messages",
+                        })
+                            .status(401);
+                    }
+                }))(req, res);
             }
             catch (error) {
                 return res.status(422);
@@ -94,14 +115,29 @@ let ChatController = class ChatController {
     deleteChat(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const foundChat = yield chat_1.default.findOne({
-                    where: { id: (0, typeorm_1.Equal)(Number(req.params.id)) },
-                });
-                if (!foundChat) {
-                    return res.status(404).json({ message: "Chat not found" });
-                }
-                yield foundChat.remove();
-                res.json({ message: "Successfully deleted" }).status(200);
+                return passport_1.default.authenticate("jwt", { session: false }, (err, user) => __awaiter(this, void 0, void 0, function* () {
+                    if (err || !user) {
+                        return res.status(401).json({ message: "Authentication failed" });
+                    }
+                    const foundChat = yield chat_1.default.findOne({
+                        where: { id: (0, typeorm_1.Equal)(Number(req.params.id)) },
+                        relations: ["user"],
+                    });
+                    if (!foundChat) {
+                        return res.status(404).json({ message: "Chat not found" });
+                    }
+                    if (user.id === (foundChat === null || foundChat === void 0 ? void 0 : foundChat.user.id)) {
+                        yield foundChat.remove();
+                        res.json({ message: "Successfully deleted" }).status(200);
+                    }
+                    else {
+                        res
+                            .json({
+                            message: "Sorry, you don't have permission to delete others messages",
+                        })
+                            .status(401);
+                    }
+                }))(req, res);
             }
             catch (error) {
                 return res.status(422);

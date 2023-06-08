@@ -11,13 +11,18 @@ import { Request, Response } from "express";
 import Chat from "../entities/chat";
 import { Equal } from "typeorm";
 import passport from "passport";
+import User from "../entities/user";
 
 @Controller("/chats")
 class ChatController {
   @Get("/")
   async getAllChats(@Req() req: Request, @Res() res: Response) {
     try {
-      const chatList = await Chat.find();
+      const chatList = await Chat.createQueryBuilder("chat")
+        .leftJoinAndSelect("chat.user", "user")
+        .select(["chat.id", "chat.text", "chat.send", "user.id"])
+        .getMany();
+
       return res.json({ Chats: chatList });
     } catch (error) {
       return res.status(500);
@@ -45,11 +50,13 @@ class ChatController {
           if (err || !user) {
             return res.status(401).json({ message: "Authentication failed" });
           }
-
+          const userId: any = {
+            id: user.id,
+          };
           let newChat = new Chat();
           newChat.send = req.body.send;
           newChat.text = req.body.text;
-          newChat.user = user.id;
+          newChat.user = userId;
           const createdChat = await Chat.save(newChat);
           return res.json({ newChat: createdChat });
         }
@@ -62,19 +69,36 @@ class ChatController {
   @Put("/:id")
   async updateChat(@Req() req: Request, @Res() res: Response) {
     try {
-      const foundChat = await Chat.findOne({
-        where: { id: Equal(Number(req.params.id)) },
-      });
+      return passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err: any, user: any) => {
+          if (err || !user) {
+            return res.status(401).json({ message: "Authentication failed" });
+          }
+          const foundChat = await Chat.findOne({
+            where: { id: Equal(Number(req.params.id)) },
+            relations: ["user"],
+          });
+          if (!foundChat) {
+            return res.status(404).json({ message: "Chat not found" });
+          }
+          if (user.id === foundChat?.user.id) {
+            Object.assign(foundChat, req.body);
 
-      if (!foundChat) {
-        return res.status(404).json({ message: "Chat not found" });
-      }
+            const updatedChat = await Chat.save(foundChat);
 
-      Object.assign(foundChat, req.body);
-
-      const updatedChat = await Chat.save(foundChat);
-
-      res.json({ chat: updatedChat }).status(200);
+            res.json({ chat: updatedChat }).status(200);
+          } else {
+            res
+              .json({
+                message:
+                  "Sorry, you don't have permission to update others messages",
+              })
+              .status(401);
+          }
+        }
+      )(req, res);
     } catch (error) {
       return res.status(422);
     }
@@ -83,15 +107,34 @@ class ChatController {
   @Delete("/:id")
   async deleteChat(@Req() req: Request, @Res() res: Response) {
     try {
-      const foundChat = await Chat.findOne({
-        where: { id: Equal(Number(req.params.id)) },
-      });
-      if (!foundChat) {
-        return res.status(404).json({ message: "Chat not found" });
-      }
+      return passport.authenticate(
+        "jwt",
+        { session: false },
+        async (err: any, user: any) => {
+          if (err || !user) {
+            return res.status(401).json({ message: "Authentication failed" });
+          }
 
-      await foundChat.remove();
-      res.json({ message: "Successfully deleted" }).status(200);
+          const foundChat = await Chat.findOne({
+            where: { id: Equal(Number(req.params.id)) },
+            relations: ["user"],
+          });
+          if (!foundChat) {
+            return res.status(404).json({ message: "Chat not found" });
+          }
+          if (user.id === foundChat?.user.id) {
+            await foundChat.remove();
+            res.json({ message: "Successfully deleted" }).status(200);
+          } else {
+            res
+              .json({
+                message:
+                  "Sorry, you don't have permission to delete others messages",
+              })
+              .status(401);
+          }
+        }
+      )(req, res);
     } catch (error) {
       return res.status(422);
     }
