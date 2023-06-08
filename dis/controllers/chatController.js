@@ -34,7 +34,7 @@ let ChatController = class ChatController {
             try {
                 const chatList = yield chat_1.default.createQueryBuilder("chat")
                     .leftJoinAndSelect("chat.user", "user")
-                    .select(["chat.id", "chat.text", "chat.send", "user.id"])
+                    .select(["chat.id", "chat.text", "chat.send", "user"])
                     .getMany();
                 return res.json({ Chats: chatList });
             }

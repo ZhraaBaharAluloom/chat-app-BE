@@ -31,6 +31,19 @@ class UserController {
 
   saltRounds = 10;
 
+  @Get("/users")
+  async getAllUsers(@Req() req: Request, @Res() res: Response) {
+    try {
+      const users = await User.find({
+        select: ["id", "username", "profileImg"],
+      });
+
+      return res.json({ users }).status(200);
+    } catch (error) {
+      return res.json({ message: error }).status(500);
+    }
+  }
+
   @Post("/signup")
   async signUp(@Req() req: Request, @Res() res: Response) {
     try {

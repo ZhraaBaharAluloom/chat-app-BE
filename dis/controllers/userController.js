@@ -43,6 +43,19 @@ let UserController = class UserController {
         };
         this.saltRounds = 10;
     }
+    getAllUsers(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const users = yield user_1.default.find({
+                    select: ["id", "username", "profileImg"],
+                });
+                return res.json({ users }).status(200);
+            }
+            catch (error) {
+                return res.json({ message: error }).status(500);
+            }
+        });
+    }
     signUp(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -82,6 +95,14 @@ let UserController = class UserController {
         });
     }
 };
+__decorate([
+    (0, express_1.Get)("/users"),
+    __param(0, (0, express_1.Req)()),
+    __param(1, (0, express_1.Res)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:returntype", Promise)
+], UserController.prototype, "getAllUsers", null);
 __decorate([
     (0, express_1.Post)("/signup"),
     __param(0, (0, express_1.Req)()),

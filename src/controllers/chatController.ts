@@ -20,7 +20,7 @@ class ChatController {
     try {
       const chatList = await Chat.createQueryBuilder("chat")
         .leftJoinAndSelect("chat.user", "user")
-        .select(["chat.id", "chat.text", "chat.send", "user.id"])
+        .select(["chat.id", "chat.text", "chat.send", "user"])
         .getMany();
 
       return res.json({ Chats: chatList });
