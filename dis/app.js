@@ -19,8 +19,6 @@ app.use(passport.initialize());
 passport.use(localStrategy);
 passport.use(jwtStrategy);
 app.use(body_parser_1.default.json()); // Add this line to parse JSON bodies
-app.use(body_parser_1.default.urlencoded({ extended: true }));
-app.use(express_1.default.json()); // Middleware to parse JSON request body
 database_1.default
     .initialize()
     .then(() => {
