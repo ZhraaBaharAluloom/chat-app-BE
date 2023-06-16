@@ -6,6 +6,7 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import config from "./config";
 import UserController from "./controllers/userController";
+import ChatRoomController from "./controllers/roomController";
 
 const { localStrategy, jwtStrategy } = require("./middleware/passport");
 const passport = require("passport");
@@ -31,6 +32,10 @@ app.listen(config.server.port, () => {
   return console.log(`[server]: Server is running on ${config.server.port}`);
 });
 
-attachControllers(app, [ChatController, UserController]).then(() => {
+attachControllers(app, [
+  ChatController,
+  UserController,
+  ChatRoomController,
+]).then(() => {
   console.log("Controller attached");
 });
