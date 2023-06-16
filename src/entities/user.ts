@@ -6,9 +6,12 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   OneToMany,
+  ManyToMany,
+  JoinTable,
 } from "typeorm";
 
 import Chat from "./chat";
+import ChatRoom from "./chatRoom";
 
 @Entity()
 class User extends BaseEntity {
@@ -27,6 +30,10 @@ class User extends BaseEntity {
 
   @OneToMany(() => Chat, (chat) => chat.user)
   chats: Chat[];
+
+  @ManyToMany(() => ChatRoom)
+  @JoinTable()
+  chatRooms: ChatRoom[];
 
   @CreateDateColumn({ default: new Date() })
   cratedDate: Date;
