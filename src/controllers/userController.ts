@@ -1,18 +1,8 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Req,
-  Res,
-} from "@decorators/express";
+import { Controller, Get, Post, Req, Res } from "@decorators/express";
 import { Request, Response } from "express";
 import User from "../entities/user";
-import { Equal } from "typeorm";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { v4 as uuidv4 } from "uuid";
 import passport from "passport";
 import { keys } from "../config/keys";
 
@@ -34,9 +24,17 @@ class UserController {
   @Get("/users")
   async getAllUsers(@Req() req: Request, @Res() res: Response) {
     try {
-      const users = await User.find({
-        select: ["id", "username", "profileImg"],
-      });
+      const users = await User.createQueryBuilder("user")
+        .leftJoinAndSelect("user.chatRooms", "chatRooms")
+        .leftJoinAndSelect("chatRooms.chats", "chats")
+        .select([
+          "user.id",
+          "user.profileImg",
+          "user.username",
+          "chatRooms.id",
+          "chats",
+        ])
+        .getMany();
 
       return res.json({ users }).status(200);
     } catch (error) {
