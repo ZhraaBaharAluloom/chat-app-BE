@@ -9,6 +9,7 @@ import {
   UpdateDateColumn,
 } from "typeorm";
 import User from "./user";
+import ChatRoom from "./chatRoom";
 
 @Entity()
 class Chat extends BaseEntity {
@@ -18,17 +19,17 @@ class Chat extends BaseEntity {
   @Column()
   text: String;
 
-  @Column()
-  send: Boolean;
-
-  @CreateDateColumn({ default: new Date() })
+  @CreateDateColumn()
   cratedDate: Date;
 
-  @UpdateDateColumn({ default: new Date() })
+  @UpdateDateColumn()
   updatedDate: Date;
 
   @ManyToOne(() => User, (user) => user.chats)
   user: User;
+
+  @ManyToOne(() => ChatRoom, (chatRoom) => chatRoom.chats)
+  room: ChatRoom;
 
   formattedCreatedDate: String;
 
