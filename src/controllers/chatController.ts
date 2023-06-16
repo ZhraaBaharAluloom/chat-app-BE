@@ -1,17 +1,8 @@
-import {
-  Controller,
-  Delete,
-  Get,
-  Post,
-  Put,
-  Req,
-  Res,
-} from "@decorators/express";
+import { Controller, Delete, Get, Put, Req, Res } from "@decorators/express";
 import { Request, Response } from "express";
 import Chat from "../entities/chat";
 import { Equal } from "typeorm";
 import passport from "passport";
-import User from "../entities/user";
 
 @Controller("/chats")
 class ChatController {
@@ -20,7 +11,15 @@ class ChatController {
     try {
       const chatList = await Chat.createQueryBuilder("chat")
         .leftJoinAndSelect("chat.user", "user")
-        .select(["chat.id", "chat.text", "chat.send", "user"])
+        .leftJoinAndSelect("chat.room", "room")
+        .select([
+          "chat.id",
+          "chat.text",
+          "user.id",
+          "user.profileImg",
+          "user.username",
+          "room.id",
+        ])
         .getMany();
 
       return res.json({ Chats: chatList });
@@ -40,32 +39,6 @@ class ChatController {
     }
   }
 
-  @Post("/")
-  async createChat(@Req() req: Request, @Res() res: Response) {
-    try {
-      return passport.authenticate(
-        "jwt",
-        { session: false },
-        async (err: any, user: any) => {
-          if (err || !user) {
-            return res.status(401).json({ message: "Authentication failed" });
-          }
-          const userId: any = {
-            id: user.id,
-          };
-          let newChat = new Chat();
-          newChat.send = req.body.send;
-          newChat.text = req.body.text;
-          newChat.user = userId;
-          const createdChat = await Chat.save(newChat);
-          return res.json({ newChat: createdChat });
-        }
-      )(req, res);
-    } catch (error) {
-      return res.status(500).json({ message: "Internal server error" });
-    }
-  }
-
   @Put("/:id")
   async updateChat(@Req() req: Request, @Res() res: Response) {
     try {
@@ -80,9 +53,11 @@ class ChatController {
             where: { id: Equal(Number(req.params.id)) },
             relations: ["user"],
           });
+
           if (!foundChat) {
             return res.status(404).json({ message: "Chat not found" });
           }
+
           if (user.id === foundChat?.user.id) {
             Object.assign(foundChat, req.body);
 
